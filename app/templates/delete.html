@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Delete record{% endblock %}
+{% block body %}
+<section class="panel narrow"><h1>Delete record?</h1>
+<p>{{ meta.title }} · {{ key }}</p>
+<dl>{% for c in meta.columns %}<dt>{{ c|replace('_', ' ')|capitalize }}</dt><dd>{{ row[c] if row[c] is not none else '—' }}</dd>{% endfor %}</dl>
+<form method="post" class="actions"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ row.revision }}"><button class="danger">Delete record</button>
+<a href="{{ url_for('listing', table=table) }}">Keep record</a></form></section>
+{% endblock %}

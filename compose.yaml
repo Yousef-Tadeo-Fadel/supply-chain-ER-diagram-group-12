@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:17
+    container_name: ${DB_CONTAINER_NAME:-supply_chain_postgres}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: supply_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-course-db}
+      POSTGRES_DB: supply_chain_db
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_fixed_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "supply_user", "-d", "supply_chain_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  provision:
+    build: ./app
+    command: ["python", "provision.py"]
+    environment:
+      DB_HOST: db
+      DB_NAME: supply_chain_db
+      DB_USER: supply_user
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-local-course-db}
+      WEB_DB_PASSWORD: ${WEB_DB_PASSWORD:-local-course-web}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build: ./app
+    container_name: ${WEB_CONTAINER_NAME:-supply_chain_web}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DB_HOST: db
+      DB_NAME: supply_chain_db
+      DB_USER: cmpe341_web
+      DB_PASSWORD: ${WEB_DB_PASSWORD:-local-course-web}
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+volumes:
+  postgres_fixed_data:
+

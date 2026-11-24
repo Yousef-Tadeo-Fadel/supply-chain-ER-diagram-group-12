@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}{{ meta.title }}{% endblock %}
+{% block body %}
+<a href="{{ url_for('dashboard') }}">← Dashboard</a>
+<div class="heading"><h1>{{ meta.title }}</h1>
+<a class="button" href="{{ url_for('edit', table=table) }}">Add record</a></div>
+{% if rows %}
+<div class="scroll" tabindex="0" aria-label="{{ meta.title }} records"><table><thead><tr>
+{% for c in meta.columns %}<th scope="col">{{ c|replace('_', ' ')|capitalize }}</th>{% endfor %}
+<th scope="col">Actions</th></tr></thead>
+<tbody>{% for row in rows %}<tr>
+{% for c in meta.columns %}<td>{{ row[c] if row[c] is not none else '—' }}</td>{% endfor %}
+<td class="actions"><a href="{{ url_for('edit', table=table, key=record_key(row, meta)) }}">Edit</a>
+{% if g.role == 'admin' %}<a href="{{ url_for('remove', table=table, key=record_key(row, meta)) }}">Delete</a>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p>No records on this page.</p>{% endif %}
+<nav class="actions" aria-label="Pagination">{% if page>1 %}<a href="?page={{ page-1 }}">Previous</a>{% endif %}{% if more %}<a href="?page={{ page+1 }}">Next</a>{% endif %}</nav>
+{% endblock %}

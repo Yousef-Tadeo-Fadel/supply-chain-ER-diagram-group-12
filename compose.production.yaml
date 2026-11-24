@@ -1,0 +1,38 @@
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run deploy/configure.py first}
+    ports: !reset []
+  provision:
+    environment:
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Missing private database password}
+      WEB_DB_PASSWORD: ${WEB_DB_PASSWORD:?Missing private web database password}
+  app:
+    ports: !reset []
+    environment:
+      APP_MODE: production
+      ACCOUNT_FILE: /run/config/accounts.json
+      SESSION_SECRET: ${SESSION_SECRET:?Missing signing secret}
+      DB_PASSWORD: ${WEB_DB_PASSWORD:?Missing private web database password}
+    volumes:
+      - ./deploy/private/accounts.json:/run/config/accounts.json:ro
+  edge:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      SITE_NAME: ${SITE_NAME:?Missing public hostname}
+      PUBLIC_IP: ${PUBLIC_IP:?Missing public IP address}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+volumes:
+  caddy_data:
+  caddy_config:
+

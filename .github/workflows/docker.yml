@@ -1,0 +1,13 @@
+name: Docker integration
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tests/test_offline.py
+      - run: python3 tests/run.py
+

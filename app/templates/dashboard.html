@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<h1>Operations dashboard</h1>
+<section><h2>Business tables</h2>
+<div class="cards">{% for table, meta in tables.items() %}
+<a class="card" href="{{ url_for('listing', table=table) }}"><span>{{ meta.title }}</span><strong>{{ counts[table] }}</strong></a>
+{% endfor %}</div></section>
+<section class="panel"><h2>Below reorder level</h2>
+{% if low %}<div class="scroll"><table><thead><tr><th>Product</th><th>Units on hand</th><th>Reorder level</th></tr></thead><tbody>
+{% for item in low %}<tr><td>{{ item.name }}</td><td>{{ item.stock }}</td><td>{{ item.reorder_level }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p>All products meet their reorder level across the warehouses.</p>{% endif %}
+</section>
+{% endblock %}

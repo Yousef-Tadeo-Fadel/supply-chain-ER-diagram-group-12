@@ -1,0 +1,10 @@
+{
+  "admin": {
+    "role": "admin",
+    "hash": "e66873dd05b238f8c09e0618dbb58e8d:af611d16d42c89991e16958b811b319a0daf2c708af17358c0a2f4e0bf190fc5"
+  },
+  "reader": {
+    "role": "standard",
+    "hash": "e619a05b4818c6cc804c5d0490c227c8:be6244386c006c9b9343999bc3aa07dc861ed6f29c37913f2ee9174180da2dfe"
+  }
+}

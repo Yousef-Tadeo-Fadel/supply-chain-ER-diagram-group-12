@@ -1,0 +1,8 @@
+http://{$PUBLIC_IP} {
+    redir https://{$SITE_NAME}{uri} permanent
+}
+
+{$SITE_NAME} {
+    reverse_proxy app:8000
+}
+

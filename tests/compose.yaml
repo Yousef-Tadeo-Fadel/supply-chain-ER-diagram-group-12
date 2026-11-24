@@ -1,0 +1,25 @@
+services:
+  db:
+    ports: !reset []
+    restart: "no"
+    environment:
+      POSTGRES_DB: cmpe341_http_test
+    volumes: !override
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+        tmpfs:
+          size: 268435456
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "supply_user", "-d", "cmpe341_http_test"]
+  provision:
+    environment:
+      DB_NAME: cmpe341_http_test
+  app:
+    environment:
+      DB_NAME: cmpe341_http_test
+      ISOLATED_HTTP_TEST: "1"
+    ports: !reset []
+    restart: "no"
+    volumes:
+      - ./tests:/checks:ro

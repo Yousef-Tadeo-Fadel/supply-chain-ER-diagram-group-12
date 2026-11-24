@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ meta.title }} · {{ 'Edit' if key else 'Add' }}{% endblock %}
+{% block body %}
+<a href="{{ url_for('listing', table=table) }}">← {{ meta.title }}</a>
+<section class="panel form-panel">
+<h1>{{ 'Edit record' if key else 'Add record' }}</h1><p class="sub">{{ meta.title }}{% if key %} · {{ key }}{% endif %}</p>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="stack"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+{% if key %}<input type="hidden" name="revision" value="{{ row.revision }}">{% endif %}
+{% for f in fields %}
+<label>{{ f|replace('_', ' ')|capitalize }}{% if not required(table, f) %} (optional){% endif %}
+{% if f in choices %}
+<select name="{{ f }}" required><option value="">Choose…</option>
+{% for value, label in choices[f] %}<option value="{{ value }}" {% if row.get(f)|string == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+</select>
+{% else %}
+<input name="{{ f }}" type="{{ field_type(f) }}" value="{{ row.get(f) if row.get(f) is not none else '' }}"
+  {% if required(table, f) %}required{% endif %} {% if f in limits %}maxlength="{{ limits[f] }}"{% endif %}
+  {% if f == 'unit_price' %}step="0.01" min="0.01"{% elif field_type(f) == 'number' %}
+  step="1" min="{{ 0 if f in ('lead_time_days','reorder_level') or (table == 'inventory' and f == 'quantity') else 1 }}"{% endif %}>
+{% endif %}
+</label>
+{% endfor %}
+{% if table == "purchase_order" %}
+<fieldset class="stack"><legend>Receiving goods</legend>
+<label>Units in this delivery (optional)<input name="delivery_units" type="number" min="1"></label>
+<label>Earlier units received (for an existing partial order)<input name="earlier_units" type="number" min="0"></label>
+<small>Set the status to Partially Received or Received to post stock. For a partial delivery, enter the units arriving now. For a previously partial order, verify the cumulative earlier units against receiving records. A full receipt uses the remaining quantity. Leave both fields empty for an ordinary edit to a partial order.</small>
+</fieldset>
+{% endif %}
+<div class="actions"><button>Save record</button><a href="{{ url_for('listing', table=table) }}">Cancel</a></div>
+</form></section>
+{% endblock %}

@@ -1,0 +1,3 @@
+# Preserve the submitted Chapter 5 scripts byte-for-byte across platforms.
+sql/*.sql -text
+queries/*.sql -text

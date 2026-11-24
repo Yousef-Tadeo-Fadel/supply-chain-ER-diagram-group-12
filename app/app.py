@@ -143,7 +143,7 @@ def dashboard():
             SELECT p.name, p.reorder_level, COALESCE(sum(i.quantity),0) AS stock
             FROM product p LEFT JOIN inventory i USING(product_id)
             GROUP BY p.product_id HAVING COALESCE(sum(i.quantity),0) < p.reorder_level
-            ORDER BY stock - p.reorder_level, p.name LIMIT 5
+            ORDER BY COALESCE(SUM(i.quantity), 0) - p.reorder_level, p.name LIMIT 5
         """).fetchall()
     return render_template("dashboard.html", counts=counts, low=low)
 
